@@ -1,10 +1,12 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+@Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
+
   @Column()
-  loin: string;
+  login: string;
 
   @Column()
   name: string;
@@ -12,8 +14,8 @@ export class User {
   @Column()
   email: string;
 
-  @Column()
-  fone: string;
+  @Column({ select: false })
+  password: string;
 
   @Column({ default: true })
   isActive: boolean;
