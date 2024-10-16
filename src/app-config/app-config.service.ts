@@ -7,6 +7,12 @@ import { JwtConfigDto } from './dto/jwt-config.dto';
 export class AppConfigService {
   constructor(private readonly config: ConfigService) {}
 
+  readonly development = process.env.NODE_ENV === 'development';
+
+  readonly test = process.env.NODE_ENV === 'test';
+
+  readonly production = process.env.NODE_ENV === 'production';
+
   get jwt(): JwtConfigDto {
     return {
       secret: this.config.getOrThrow<string>('JWT_SECRET'),
