@@ -25,7 +25,7 @@ export class UsersService {
     return userCreated;
   }
 
-  async findAll(): Promise<User[]> {
+  findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
 

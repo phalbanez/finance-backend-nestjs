@@ -1,10 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { DatabaseConfigModule } from 'src/database/database.module';
+import { UsersModule } from 'src/users/users.module';
 import * as request from 'supertest';
-import { AppConfigModule } from '../../src/app-config/app-config.module';
-import { AppConfigService } from '../../src/app-config/app-config.service';
-import { UsersModule } from '../../src/users/users.module';
 
 describe('Users - /users (e2e)', () => {
   const users = [
@@ -37,28 +35,7 @@ describe('Users - /users (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        TypeOrmModule.forRootAsync({
-          imports: [AppConfigModule],
-          useFactory: (config: AppConfigService) => ({
-            type:
-              config.database.type === 'sqlite'
-                ? 'sqlite'
-                : config.database.type === 'mysql'
-                  ? 'mysql'
-                  : 'postgres',
-            host: config.database.host,
-            port: config.database.port,
-            database: config.database.name,
-            user: config.database.user,
-            password: config.database.password,
-            autoLoadEntities: true,
-            synchronize: true,
-          }),
-          inject: [AppConfigService],
-        }),
-        UsersModule,
-      ],
+      imports: [DatabaseConfigModule, UsersModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -98,6 +75,6 @@ describe('Users - /users (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 });
