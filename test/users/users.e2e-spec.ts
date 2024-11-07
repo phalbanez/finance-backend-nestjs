@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseConfigModule } from 'src/database/database.module';
 import { UsersModule } from 'src/users/users.module';
@@ -46,32 +46,34 @@ describe('Users - /users (e2e)', () => {
     const { body: body1 } = await request(app.getHttpServer())
       .post('/users')
       .send({ ...createUser1 })
-      .expect(201);
+      .expect(HttpStatus.CREATED);
     expect(body1).toEqual(user1);
 
     const { body: body2 } = await request(app.getHttpServer())
       .post('/users')
       .send({ ...createUser2 })
-      .expect(201);
+      .expect(HttpStatus.CREATED);
     expect(body2).toEqual(user2);
   });
 
   it('Get all users [GET /users]', async () => {
     const { body } = await request(app.getHttpServer())
       .get('/users')
-      .expect(200);
+      .expect(HttpStatus.OK);
     expect(body).toEqual(users);
   });
 
   it('Get one user [GET /users/:id]', async () => {
     const { body } = await request(app.getHttpServer())
       .get('/users/1')
-      .expect(200);
+      .expect(HttpStatus.OK);
     expect(body).toEqual(user1);
   });
 
   it('Delete one user [DELETE /users/:id]', () => {
-    return request(app.getHttpServer()).delete('/users/1').expect(200);
+    return request(app.getHttpServer())
+      .delete('/users/1')
+      .expect(HttpStatus.OK);
   });
 
   afterAll(async () => {

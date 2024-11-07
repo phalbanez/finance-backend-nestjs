@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
-  Post,
   ParseIntPipe,
+  Post,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
@@ -31,7 +31,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.usersService.remove(id);
   }
 }

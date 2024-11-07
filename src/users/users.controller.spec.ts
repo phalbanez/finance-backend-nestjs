@@ -89,7 +89,7 @@ describe('UsersController', () => {
 
   describe('remove()', () => {
     it('should remove the user', () => {
-      usersController.remove('2');
+      usersController.remove(2);
       expect(usersService.remove).toHaveBeenCalled();
     });
   });
