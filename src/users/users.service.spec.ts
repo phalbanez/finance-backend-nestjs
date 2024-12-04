@@ -96,7 +96,7 @@ describe('UserService', () => {
     });
 
     it('valid login and user', async () => {
-      await service.validLogin(1);
+      await service.valid(1);
     });
   });
 });

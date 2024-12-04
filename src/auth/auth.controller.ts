@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
-import { SignInDto } from './dtos/sign-in.dto';
+import { SignInDto } from './dto/sign-in.dto';
 
 @Controller('auth')
 export class AuthController {
