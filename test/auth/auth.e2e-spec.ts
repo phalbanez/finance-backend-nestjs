@@ -1,43 +1,25 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { AuthModule } from 'src/auth/auth.module';
+import { DatabaseConfigModule } from 'src/database/database.module';
+import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
 import * as request from 'supertest';
-import { AppModule } from '../../src/app.module';
+import { runUserSeeds } from 'test/users/users.seeds';
 
 describe('Auth JWT - /auth (e2e)', () => {
   let app: INestApplication;
   let service: UsersService;
 
-  const user1 = {
-    id: 1,
-    login: 'login1',
-    name: 'User 1',
-    email: 'user1@test.com',
-    password: 'teste123',
-    isActive: true,
-  };
-
-  const user2 = {
-    id: 2,
-    login: 'login2',
-    name: 'User 2',
-    email: 'user2@test.com',
-    password: 'teste123456',
-    isActive: true,
-  };
-
   beforeAll(async () => {
     const modRef = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [DatabaseConfigModule, AuthModule, UsersModule],
     }).compile();
 
     app = modRef.createNestApplication();
     await app.init();
 
-    service = app.get<UsersService>(UsersService);
-    await service.create(user1);
-    await service.create(user2);
-    await service.disable(2);
+    await runUserSeeds(app);
   });
 
   it('should fail with invalid login', async () => {
@@ -48,7 +30,7 @@ describe('Auth JWT - /auth (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ login: 'login2', password: 'teste123456' })
+      .send({ login: 'login2', password: 'teste234' })
       .expect(401);
   });
 
@@ -70,6 +52,6 @@ describe('Auth JWT - /auth (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 });

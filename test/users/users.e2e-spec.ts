@@ -3,33 +3,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseConfigModule } from 'src/database/database.module';
 import { UsersModule } from 'src/users/users.module';
 import * as request from 'supertest';
+import { runUserSeeds, usersSeed } from './users.seeds';
 
 describe('Users - /users (e2e)', () => {
-  const users = [
-    {
-      id: 1,
-      login: 'login1',
-      name: 'User 1',
-      email: 'user1@test.com',
-      isActive: true,
-    },
-    {
-      id: 2,
-      login: 'login2',
-      name: 'User 2',
-      email: 'user2@test.com',
-      isActive: true,
-    },
-  ];
+  const user = {
+    id: 0,
+    login: 'login4',
+    name: 'User 4',
+    email: 'user4@test.com',
+    isActive: true,
+  };
 
-  const user1 = { ...users[0] };
-  const user2 = { ...users[1] };
-
-  const createUser1 = { ...user1, password: 'teste123' };
-  delete createUser1.id;
-
-  const createUser2 = { ...user2, password: 'teste12345' };
-  delete createUser2.id;
+  const createUser = { ...user, password: 'teste123' };
 
   let app: INestApplication;
 
@@ -40,39 +25,38 @@ describe('Users - /users (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-  });
 
-  it('Create [POST /users]', async () => {
-    const { body: body1 } = await request(app.getHttpServer())
-      .post('/users')
-      .send({ ...createUser1 })
-      .expect(HttpStatus.CREATED);
-    expect(body1).toEqual(user1);
-
-    const { body: body2 } = await request(app.getHttpServer())
-      .post('/users')
-      .send({ ...createUser2 })
-      .expect(HttpStatus.CREATED);
-    expect(body2).toEqual(user2);
+    await runUserSeeds(app);
   });
 
   it('Get all users [GET /users]', async () => {
     const { body } = await request(app.getHttpServer())
       .get('/users')
       .expect(HttpStatus.OK);
-    expect(body).toEqual(users);
+
+    expect(body).toEqual(usersSeed);
+  });
+
+  it('Create [POST /users]', async () => {
+    const { body } = await request(app.getHttpServer())
+      .post('/users')
+      .send({ ...createUser })
+      .expect(HttpStatus.CREATED);
+
+    user.id = body.id;
+    expect(body).toEqual(user);
   });
 
   it('Get one user [GET /users/:id]', async () => {
     const { body } = await request(app.getHttpServer())
-      .get('/users/1')
+      .get(`/users/${user.id}`)
       .expect(HttpStatus.OK);
-    expect(body).toEqual(user1);
+    expect(body).toEqual(user);
   });
 
   it('Delete one user [DELETE /users/:id]', () => {
     return request(app.getHttpServer())
-      .delete('/users/1')
+      .delete(`/users/${user.id}`)
       .expect(HttpStatus.OK);
   });
 

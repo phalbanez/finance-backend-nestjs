@@ -25,7 +25,6 @@ export class AuthController {
 
   @Get('profile')
   getProfile(@Request() req) {
-    const teste = '';
     return req.login;
   }
 }

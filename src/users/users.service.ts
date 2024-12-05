@@ -52,6 +52,17 @@ export class UsersService {
     await this.repository.save(user);
   }
 
+  async enabled(id: number): Promise<void> {
+    const user = await this.repository.findOne({
+      select: { id: true, isActive: true },
+      where: { id },
+    });
+    if (!user) throw new InvalidUserError();
+    if (user.isActive) return;
+    user.isActive = true;
+    await this.repository.save(user);
+  }
+
   async login(login: string, password: string): Promise<LoginUserDto> {
     const user = await this.repository.findOne({
       select: { id: true, password: true, isActive: true },
