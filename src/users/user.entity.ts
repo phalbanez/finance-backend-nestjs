@@ -5,16 +5,16 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ length: 200 })
   login: string;
 
-  @Column()
+  @Column({ length: 200 })
   name: string;
 
-  @Column()
+  @Column({ length: 200 })
   email: string;
 
-  @Column({ select: false })
+  @Column({ length: 200, select: false })
   password: string;
 
   @Column({ default: true })

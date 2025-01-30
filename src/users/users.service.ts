@@ -5,8 +5,9 @@ import { UnauthorizedError } from 'src/common/errors/unauthorized.error';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { InactiveUserError } from './errors/inactive.user.error';
-import { InvalidUserError } from './errors/invalid.user.error';
+import { UserDto } from './dto/user.dto';
+import { InactiveUserException } from './exceptions/inactive.user.exception';
+import { InvalidUserException } from './exceptions/invalid.user.exception';
 import { User } from './user.entity';
 
 @Injectable()
@@ -16,7 +17,7 @@ export class UsersService {
     private readonly repository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserDto> {
     const user = new User();
     user.login = createUserDto.login;
     user.name = createUserDto.name;
@@ -38,7 +39,8 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<void> {
-    await this.repository.delete(id);
+    const result = await this.repository.delete(id);
+    if (result.affected != 1) throw new InvalidUserException();
   }
 
   async disable(id: number): Promise<void> {
@@ -46,7 +48,7 @@ export class UsersService {
       select: { id: true, isActive: true },
       where: { id },
     });
-    if (!user) throw new InvalidUserError();
+
     if (!user.isActive) return;
     user.isActive = false;
     await this.repository.save(user);
@@ -57,7 +59,7 @@ export class UsersService {
       select: { id: true, isActive: true },
       where: { id },
     });
-    if (!user) throw new InvalidUserError();
+    if (!user) throw new InvalidUserException();
     if (user.isActive) return;
     user.isActive = true;
     await this.repository.save(user);
@@ -74,7 +76,7 @@ export class UsersService {
 
       if (isPasswordValid) {
         if (!user.isActive) {
-          throw new InactiveUserError();
+          throw new InactiveUserException();
         }
 
         return {
@@ -91,7 +93,7 @@ export class UsersService {
       select: { isActive: true },
       where: { id },
     });
-    if (!user) throw new InactiveUserError();
-    if (!user.isActive) throw new InactiveUserError();
+    if (!user) throw new InvalidUserException();
+    if (!user.isActive) throw new InactiveUserException();
   }
 }
